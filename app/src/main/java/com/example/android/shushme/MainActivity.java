@@ -36,7 +36,9 @@ import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListe
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.Places;
 
-public class MainActivity extends AppCompatActivity implements ConnectionCallbacks, OnConnectionFailedListener {
+public class MainActivity extends AppCompatActivity implements
+        ConnectionCallbacks,
+        OnConnectionFailedListener {
 
     // Constants
     public static final String TAG = MainActivity.class.getSimpleName();
@@ -62,7 +64,10 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
         mAdapter = new PlaceListAdapter(this);
         mRecyclerView.setAdapter(mAdapter);
 
-        // TODO (4) Create a GoogleApiClient with the LocationServices API and GEO_DATA_API
+
+        // Build up the LocationServices API client
+        // Uses the addApi method to request the LocationServices API
+        // Also uses enableAutoManage to automatically when to connect/suspend the client
         GoogleApiClient client = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
@@ -70,36 +75,57 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
                 .addApi(Places.GEO_DATA_API)
                 .enableAutoManage(this, this)
                 .build();
+
     }
 
+    /***
+     * Called when the Google API Client is successfully connected
+     *
+     * @param connectionHint Bundle of data provided to clients by Google Play services
+     */
     @Override
     public void onConnected(@Nullable Bundle connectionHint) {
         Log.i(TAG, "API Client Connection Successful!");
     }
 
+    /***
+     * Called when the Google API Client is suspended
+     *
+     * @param cause cause The reason for the disconnection. Defined by constants CAUSE_*.
+     */
     @Override
     public void onConnectionSuspended(int cause) {
         Log.i(TAG, "API Client Connection Suspended!");
     }
 
+    /***
+     * Called when the Google API Client failed to connect to Google Play Services
+     *
+     * @param result A ConnectionResult that can be used for resolving the error
+     */
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult result) {
         Log.e(TAG, "API Client Connection Failed!");
     }
 
-    // TODO (5) Override onConnected, onConnectionSuspended and onConnectionFailed for GoogleApiClient
-    // TODO (7) Override onResume and inside it initialize the location permissions checkbox
-    // TODO (8) Implement onLocationPermissionClicked to handle the CheckBox click event
-    // TODO (9) Implement the Add Place Button click event to show  a toast message with the permission status
-
+    /***
+     * Button Click event handler to handle clicking the "Add new location" Button
+     *
+     * @param view
+     */
     public void onAddPlaceButtonClicked(View view) {
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
             Toast.makeText(this, getString(R.string.need_location_permission_message), Toast.LENGTH_LONG).show();
             return;
         }
+        // TODO (1) Create a PlacePicker.IntentBuilder and call startActivityForResult
+        // TODO (2) Handle GooglePlayServices exceptions
         Toast.makeText(this, getString(R.string.location_permissions_granted_message), Toast.LENGTH_LONG).show();
     }
+
+    // TODO (3) Implement onActivityResult and check that the requestCode is PLACE_PICKER_REQUEST
+    // TODO (4) In onActivityResult, use PlacePicker.getPlace to extract the Place ID and insert it into the DB
 
     @Override
     public void onResume() {
